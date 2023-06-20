@@ -1,0 +1,98 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
+contract rainforestContract is ChainlinkClient {
+    using Chainlink for Chainlink.Request;
+    // Declare the Chainlink variables
+    address private oracle;
+    bytes32 private jobId;
+    uint256 private fee;
+    address private chainlinkToken;
+    uint256 public estimatedAbsorption;
+    uint256 public forestSize;
+    uint256 public forestDensity;
+    uint256 public photosyntheticEfficiency;
+    uint256 public carbonStorage;
+    uint256 public soilCarbonContent;
+    uint256 public environmentalConditions;
+
+    event EstimatedAbsorptionUpdated(uint256 newAbsorption);
+   
+
+    // Declare the API endpoint
+    string private apiEndpoint = "https://services.sentinel-hub.com/ogc/wms/{5ea24b48-15e6-4e3b-a190-e33e219c8eea}?SERVICE=WMS&REQUEST=GetMap&SHOWLOGO=false&VERSION=1.3.0&LAYERS=NDVI&MAXCC=20&WIDTH=640&HEIGHT=640&CRS=EPSG:4326&BBOX={minX},{minY},{maxX},{maxY}&FORMAT=image/png&TIME=2023-02-27T00:00:00Z/2023-05-28T23:59:59Z&TIMELESS=true&RESAMPLE=BILINEAR&RENDERER=MIN_MAX&SHOWSCALE=true";
+
+    // Declare the rainforest carbon dioxide absorption variable
+    uint256 public carbonDioxideAbsorption;
+
+
+
+    // Constructor to initialize the Chainlink variables
+    constructor() {
+        // Set the Chainlink variables for your specific network
+        oracle = 0xF5a3d443FccD7eE567000E43B23b0e98d96445CE;
+        jobId = "35167569e99342f28bb651f71ce9ab32";
+        fee = 0.1 * 10**18; // Convert fee to Wei (Chainlink uses 18 decimals for the fee)
+        chainlinkToken = 0x326C977E6efc84E512bB9C30f76E30c160eD06FB;
+        setChainlinkToken(chainlinkToken);
+      
+    }
+
+    // Function to request rainforest carbon dioxide absorption data
+    function requestCarbonDioxideAbsorption() public payable {
+
+   emit EstimatedAbsorptionUpdated(adjustedAbsorption);
+
+ // Create a Chainlink request
+    Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
+        
+        // Construct the API endpoint URL
+        string memory url = string(abi.encodePacked("https://services.sentinel-hub.com/ogc/wms/{5ea24b48-15e6-4e3b-a190-e33e219c8eea}?SERVICE=WMS&REQUEST=GetMap&SHOWLOGO=false&VERSION=1.3.0&LAYERS=NDVI&MAXCC=20&WIDTH=640&HEIGHT=640&CRS=EPSG:4326&BBOX={minX},{minY},{maxX},{maxY}&FORMAT=image/png&TIME=2023-02-27T00:00:00Z/2023-05-28T23:59:59Z&TIMELESS=true&RESAMPLE=BILINEAR&RENDERER=MIN_MAX&SHOWSCALE=true"));
+
+        // Set the URL in the request
+         request.add("get", url);
+    
+         request.add("path", "data.ndvi"); // Replace with the JSON path to extract the required data
+        request.addInt("times", 100); // Multiplier to convert the obtained data to an appropriate format
+
+        // Send the Chainlink request
+        sendChainlinkRequestTo(oracle, request, fee);
+    }
+
+    // Callback function to receive the response from the Chainlink Oracle
+    function fulfill(bytes32 _requestId, uint256 _carbonDioxideAbsorption) public recordChainlinkFulfillment(_requestId) {
+        carbonDioxideAbsorption = _carbonDioxideAbsorption;
+
+    }
+
+
+     // Perform additional logic
+        uint256 adjustedAbsorption = estimatedAbsorption * forestSize * forestDensity * photosyntheticEfficiency * carbonStorage * soilCarbonContent * environmentalConditions;
+      
+    function setForestSize(uint256 _size) public {
+        forestSize = _size;
+    }
+    
+    function setForestDensity(uint256 _density) public {
+        forestDensity = _density;
+    }
+    
+    function setPhotosyntheticEfficiency(uint256 _efficiency) public {
+        photosyntheticEfficiency = _efficiency;
+    }
+    
+    function setCarbonStorage(uint256 _storage) public {
+ }
+    
+    function setSoilCarbonContent(uint256 _content) public {
+        soilCarbonContent = _content;
+    }
+    
+    function setEnvironmentalConditions(uint256 _conditions) public {
+        environmentalConditions = _conditions;
+    }
+    
+}
+
+
