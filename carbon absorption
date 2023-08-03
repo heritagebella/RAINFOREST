@@ -2,8 +2,12 @@
 pragma solidity ^0.8.0;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
+import {Functions, FunctionsClient} from "./dev/functions/FunctionsClient.sol";
+
 contract rainforestContract is ChainlinkClient {
+
     using Chainlink for Chainlink.Request;
+    using Functions for Functions.Request;
     // Declare the Chainlink variables
     address private oracle;
     bytes32 private jobId;
